@@ -1,0 +1,115 @@
+{
+    "common": {
+        "name": "z2m",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "zh-cn": "首次出版"
+            }
+        },
+        "title": "Z2M",
+        "titleLang": {
+            "en": "Z2M",
+            "de": "Z2M",
+            "ru": "Z2M",
+            "pt": "Z2M",
+            "nl": "Z2M",
+            "fr": "Z2M",
+            "it": "Z2M",
+            "es": "Z2M",
+            "pl": "Z2M",
+            "zh-cn": "Z2M"
+        },
+        "desc": {
+            "en": "Adapter Z2M_iobroker",
+            "de": "Adapter Z2M_iobroker",
+            "ru": "Адаптер Z2M_iobroker",
+            "pt": "Adaptador Z2M_iobroker",
+            "nl": "Adapter Z2M_iobroker",
+            "fr": "Adaptateur Z2M_iobroker",
+            "it": "Adattatore Z2M_iobroker",
+            "es": "Adaptador Z2M_iobroker",
+            "pl": "Adapter Z2M_iobroker",
+            "zh-cn": "适配器 Z2M_iobroker"
+        },
+        "authors": [
+            "Vlad <kvlad7492@gmail.com>"
+        ],
+        "keywords": [
+            "Zigbee"
+        ],
+        "license": "MIT",
+        "platform": "Javascript/Node.js",
+        "main": "main.js",
+        "icon": "z2m.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/DJONvl/ioBroker.z2m/master/admin/z2m.png",
+        "readme": "https://github.com/DJONvl/ioBroker.z2m/blob/master/README.md",
+        "loglevel": "info",
+        "mode": "daemon",
+        "type": "hardware",
+        "compact": true,
+        "materialize": true,
+        "materializeTab": true,
+        "adminTab": {
+            "singleton": true,
+            "name": {
+                "en": "Z2M",
+                "de": "Z2M",
+                "ru": "Z2M",
+                "pt": "Z2M",
+                "nl": "Z2M",
+                "fr": "Z2M",
+                "it": "Z2M",
+                "es": "Z2M",
+                "pl": "Z2M",
+                "zh-cn": "Z2M"
+            },
+            "link": "",
+            "fa-icon": "info"
+        },
+        "supportCustoms": true,
+        "dependencies": [
+            {
+                "js-controller": ">=1.4.2"
+            }
+        ]
+    },
+    "native": {
+        "option1": "192.168.1.2",
+        "option2": "8090"
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}
