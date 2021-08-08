@@ -15,7 +15,7 @@ const onChangeSupported = false;
 
 const tmp = window.location.pathname.split('/');
 adapter = tmp[tmp.length - 2];
-const _adapterInstance = 'system.adapter.' + adapter + '.0';// + instance;
+const _adapterInstance = 'system.adapter.' + adapter + '.' + instance;
 
 $(document).ready(function () {
     'use strict';
