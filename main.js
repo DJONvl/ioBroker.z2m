@@ -63,13 +63,26 @@ function startAdapter(options) {
         stateChange: (id, state) => {
             if (state) {
                 // The state was changed
-                if(state.from !='system.adapter.'+adapter.name+'.'+adapter.instance){
+				//adapter.log.info(JSON.stringify(state));                
+				if(state.from !='system.adapter.'+adapter.name+'.'+adapter.instance){
 				
 				adapter.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
 				adapter.log.info(JSON.stringify(state));
 				var aid=id.split('.')
 				try{
-					z2m_command(aid[3],aid[4],state.val+"")
+//state z2m.0.grp.test.on_off changed: on (ack = false)					
+				switch (aid[2])
+				{
+					case "dev":
+					z2m_command(aid[3],aid[4],state.val+"")						
+					break;					
+					case "grp":
+					z2m_command(aid[3],aid[4],state.val+"")						
+					break;				
+				
+				}	
+					
+
 				}catch{}
 				}				
             } else {
@@ -150,7 +163,14 @@ adapter.setStateAsync('info.connection', false, true)
 						break;
 
 					case "bridge/groups":
-
+					adapter.log.info(JSON.stringify(data))
+for(var i =0;i < (data.payload).length;i++){	
+await adapter.createStateAsync('grp',data.payload[i].friendly_name,"state",{name:"state",type: 'string' ,role:'state',read:true,write: true,native: {},}) 
+await adapter.createStateAsync('grp',data.payload[i].friendly_name,"brightness", {name:"brightness",type: 'number' ,role:'state',read:true,write: true,native: {},}) 
+await adapter.createStateAsync('grp',data.payload[i].friendly_name,"color_temp", {name:"color_temp",type: 'number' ,role:'state',read:true,write: true,native: {},}) 
+				
+}						
+						
 						break;
 
 					case "bridge/event":
@@ -191,8 +211,9 @@ adapter.setStateAsync('info.connection', false, true)
 					
 					
 							  for (let [key, value] of Object.entries(data.payload)) {	
-									 if (value!=null){await adapter.setState('dev.'+dv[0]+'.'+key, value, true)}	
-					
+								try{	
+									if (value!=null){await adapter.setState('dev.'+dv[0]+'.'+key, value, true)}	
+								}catch(e){adapter.log.debug(e)}
 							  }			
 						
 					}
@@ -201,7 +222,7 @@ adapter.setStateAsync('info.connection', false, true)
 		}
     // You can also add a subscription for multiple states. The following line watches all states starting with "lights."
     adapter.subscribeStates('dev.*');
-
+    adapter.subscribeStates('grp.*');
     // examples for the checkPassword/checkGroup functions
     adapter.checkPassword('admin', 'iobroker', (res) => {
         adapter.log.debug('check user admin pw iobroker: ' + res);
@@ -222,8 +243,8 @@ adapter.log.debug(JSON.stringify(devarr));
 async function z2m_zesp_Device(devar,data){
 					var z2m_Devices=[];
 					for(var i =1;i < (data.payload).length;i++){
-							adapter.log.debug("------------data.payload[i]----------")
-							adapter.log.debug(JSON.stringify(data.payload[i]))				 			
+							adapter.log.info("------------data.payload["+i+"]----------")
+							adapter.log.info(JSON.stringify(data.payload[i]))				 			
 							var rep={};
 							if(data.payload[i].definition !=null ){
 							var exp=data.payload[i].definition.exposes;
@@ -233,35 +254,17 @@ async function z2m_zesp_Device(devar,data){
 							async function getFeatures(arep,aexp){	
 									for(var z =0;z < aexp.length;z++){
 										if( aexp[z].hasOwnProperty('features')){
-											getFeatures(arep,aexp[z].features)										
+											if( aexp[z].name=='b_color_xy'){
+											
+											break
+											}else{
+											
+											await getFeatures(arep,aexp[z].features)	
+											}											
 										}else{
 										 Object.assign(arep,JSON.parse(`{"z2m_`+aexp[z].name+`" : {"label": "`+aexp[z].name+`","val": "x","mat": "1","role": "","parsed": "","time": 0,"access":`+aexp[z].access+`}	}`))
-var atr_type;
-        switch (aexp[z].type)
-		{
- //           case "binary":
- //              atr_type='boolean'; 
-//				break;
-            case "numeric":
-               atr_type='number'; 
-				break;				
-				
-			default :
-			//string/number/boolean
-			atr_type='string';
-		}
-										
-//adapter.createStateAsync('dev',data.payload[i].friendly_name, aexp[z].name, 'atr_state', {name: 'test', role:'state', type: atr_type ,read:true,write: true})											
-await adapter.createStateAsync('dev',data.payload[i].friendly_name, aexp[z].name, {
-				name: aexp[z].name, 
-				type: atr_type ,	
-				role:'state', 
-				read:true,
-				write: true,
-
-        native: {},		
-	})	
-
+	
+									await	addState(data.payload[i],aexp[z]);
 
 	
 										}
@@ -289,10 +292,39 @@ await adapter.createStateAsync('dev',data.payload[i].friendly_name, aexp[z].name
 }
 
 
+		async function addState(dpi,exp){
+			var atr_type;
+					switch (exp.type)
+					{
+			 //           case "binary":
+			 //              atr_type='boolean'; 
+			//				break;
+						case "numeric":
+						   atr_type='number'; 
+							break;				
+							
+						default :
+						//string/number/boolean
+						atr_type='string';
+					}
+			try{var label=(dpi.hasOwnProperty('friendly_name')) ?	dpi.friendly_name :	dpi.ieee_address}catch{var label='undefined';}		
+			
+			await adapter.createStateAsync('dev',label, exp.name, {
+							name: exp.name, 
+							type: atr_type ,	
+							role:'state', 
+							read:true,
+							write: true,
+					native: {},		
+				})		
+		
+		}
+
+
 		function H2(input, base) {return input.toString(16).padStart( 4, 0).toUpperCase();}
 		z2m_command=function(ieee,pl_name,val){
 			z2m_send('{"payload":{"'+pl_name+'":"'+val+'"},"topic":"'+ieee+'/set"}')
-			//console.log('{"payload":{"'+pl_name+'":"'+val+'"},"topic":"'+ieee+'/set"}')
+			adapter.log.info('{"payload":{"'+pl_name+'":"'+val+'"},"topic":"'+ieee+'/set"}')
 		} 
 
 }
