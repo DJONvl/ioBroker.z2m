@@ -132,7 +132,7 @@ adapter.setStateAsync('info.connection', false, true)
 				   function z2m_send(message) {z2m.send(message);}
 				   var checkWSz2m = setInterval(function(){
 					 //  z2m.clients.forEach(function each(client) {if (client == z2m && client.readyState != WebSocket.OPEN) {z2mWebSocket();}});	
-					   adapter.log.debug("*************************checkWSz2m*******************************")			  
+					   //adapter.log.debug("*************************checkWSz2m*******************************")			  
 					  if(z2m.readyState!=1){adapter.setStateAsync('info.connection', false, true);z2mWebSocket();}else{ adapter.setStateAsync('info.connection', true, true);}
 					   
 					   }, 5000);
@@ -163,7 +163,7 @@ adapter.setStateAsync('info.connection', false, true)
 						break;
 
 					case "bridge/groups":
-					adapter.log.info(JSON.stringify(data))
+					//adapter.log.info(JSON.stringify(data))
 for(var i =0;i < (data.payload).length;i++){	
 await adapter.createStateAsync('grp',data.payload[i].friendly_name,"state",{name:"state",type: 'string' ,role:'state',read:true,write: true,native: {},}) 
 await adapter.createStateAsync('grp',data.payload[i].friendly_name,"brightness", {name:"brightness",type: 'number' ,role:'state',read:true,write: true,native: {},}) 
@@ -206,12 +206,13 @@ await adapter.createStateAsync('grp',data.payload[i].friendly_name,"color_temp",
 					var dv=data.topic.split("/")		
 					if( dv.length <2 ){
 					
-					adapter.log.debug("z2m|"+dv[0]+" : "+JSON.stringify(data.payload))
-		//			z2m|rozetka : {"current":0.18,"linkquality":220,"power":18,"state":null,"voltage":229.8}
-					
-					
+					//adapter.log.debug("z2m|"+dv[0]+" : "+JSON.stringify(data.payload))
 							  for (let [key, value] of Object.entries(data.payload)) {	
 								try{	
+									if(key=='last_seen'){
+									await adapter.createStateAsync('dev',dv[0],key,{name:key, type: 'string' ,role:'state',read:true,write: false,native: {},}) 										
+									}
+									
 									if (value!=null){await adapter.setState('dev.'+dv[0]+'.'+key, value, true)}	
 								}catch(e){adapter.log.debug(e)}
 							  }			
@@ -244,7 +245,7 @@ async function z2m_zesp_Device(devar,data){
 					var z2m_Devices=[];
 					for(var i =1;i < (data.payload).length;i++){
 							adapter.log.info("------------data.payload["+i+"]----------")
-							adapter.log.info(JSON.stringify(data.payload[i]))				 			
+							//adapter.log.info(JSON.stringify(data.payload[i]))				 			
 							var rep={};
 							if(data.payload[i].definition !=null ){
 							var exp=data.payload[i].definition.exposes;
