@@ -209,7 +209,7 @@ await adapter.createStateAsync('grp',data.payload[i].friendly_name,"color_temp",
 					//adapter.log.debug("z2m|"+dv[0]+" : "+JSON.stringify(data.payload))
 							  for (let [key, value] of Object.entries(data.payload)) {	
 								try{	
-									if(key=='last_seen'){
+									if(key=='last_seen'||key=='elapsed'){
 									await adapter.createStateAsync('dev',dv[0],key,{name:key, type: 'string' ,role:'state',read:true,write: false,native: {},}) 										
 									}
 									
