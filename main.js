@@ -123,7 +123,7 @@ adapter.setStateAsync('info.connection', false, true)
 				 function z2mWebSocket() {
 					 try{
 					  z2m = new WebSocket(adress);
-					  z2m.on('open', 	function open() {z2m.send('hello');});
+					  z2m.on('open', 	function open() { });
 					  z2m.on('message', function incoming(data) {z2m_parse(data);});
 					  z2m.on('error', function error(data) {adapter.log.debug(data)}); 
 					  }catch(err){adapter.log.debug(err)}
